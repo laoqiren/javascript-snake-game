@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding:0;
+        }
+        .container{
+            width: 800px;
+            height: 600px;
+            margin:0 auto;
+        }
+        #grass{
+            height: 70%;
+            width: 100%;
+            position: relative;
+        }
+        #btn{
+            height: 30%;
+            width: 100%;
+            background-color: white;
+            text-align: center;
+        }
+        #start ,#pause,#faster{
+            width: 70px;
+            height: 50px;
+            font-size: 13px;
+            vertical-align: center;
+        }
+        #score{
+            margin-left: 50px;
+        }
+        .block{
+            width: 20px;
+            height: 20px;
+            background:url('grass.jpg');
+            float:left;
+        }
+        .food-block{
+            background:url('apple.jpg');
+            position: absolute;
+            background-position: 50% 50%;
+        }
+        .snake-block{
+            width: 20px;
+            height: 20px;
+            float:left;
+            background:url('snake.jpg');
+            background-position: 50% 50%;
+            position: absolute;
+        }
+        .snakeBody{
+            width: 20px;
+            height: 20px;
+            top:60px;
+            float: left;
+            background:url('snake.jpg');
+            background-position: 50% 50%;
+            position: absolute;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function(){
+            //创建草坪
+            var grass = document.getElementById("grass");
+            var score = 0;
+            for(var i = 0;i<40;i++){
+                for(var j = 0;j<21;j++){
+                    var block = document.createElement("div");
+                    block.className = "block";
+                    grass.appendChild(block);
+                }
+            }
+            //创建蛇身
+            var snakeBody = new Array();
+            for(var i = 3;i > 0;i--){
+                var block = document.createElement("div");
+                block.className = "snakeBody";
+                block.style.left = 20 * i +"px";
+                grass.appendChild(block);
+                snakeBody.push(block);
+            }
+            var snakeHead = snakeBody[0];
+            snakeHead.style.backgroundImage = "url('head.jpg')";
+            snakeHead.style.backgroundPosition = "%50 %50";
+            //创建食物
+            var food = createFood();
+            //蛇身移动
+            var v = 300;
+            var start = document.getElementById("start");
+            var timer = null;
+            var direction = "right";
+            start.addEventListener("click",function(){
+                clearInterval(timer);
+                timer = setInterval(function(){
+                    move(direction);
+                },v);
+            
+            //蛇转方向
+            document.onkeydown = function(event){
+                event = event || window.event;
+                var keyCode = event.keyCode;
+                switch(keyCode){
+                    case 37:
+                        if(direction != "right"){
+                            direction = "left";
+                            move(direction);
+                        }
+                        break;
+                    case 38:
+                        if(direction != "down"){
+                            direction = "up";
+                            move(direction);
+                        }
+                        break;
+                    case 39:
+                        if(direction != "left"){
+                            direction = "right";
+                            move(direction);
+                        }
+                        break;
+                    case 40:
+                        if(direction != "up"){
+                            direction = "down";
+                            move(direction);
+                        }
+                }
+            };
+            //蛇暂停移动
+            var pause = document.getElementById("pause");
+            pause.addEventListener("click",function(event){
+                clearInterval(timer);
+                document.onkeydown=null;
+            });
+            var faster = document.getElementById("faster");
+            if(v>100){
+                faster.addEventListener("click",function(event){
+                    v -= 100;
+                });
+            }
+            //蛇移动
+            function move(direction){
+                for(var i = snakeBody.length-1;i>0;i--){
+                    snakeBody[i].style.left = snakeBody[i-1].offsetLeft + "px";
+                    snakeBody[i].style.top = snakeBody[i-1].offsetTop + "px";
+                }
+                switch(direction){
+                    case "left":
+                        snakeHead.style.left = snakeHead.offsetLeft - 20 + "px";
+                        break;
+                    case "up":
+                        snakeHead.style.top = snakeHead.offsetTop - 20 +"px";
+                        break;
+                    case "down":
+                        snakeHead.style.top = snakeHead.offsetTop + 20 + "px";
+                        break;
+                    case "right":
+                        snakeHead.style.left = snakeHead.offsetLeft + 20 + "px";
+                        break;
+                }
+                //蛇是否吃到自己的身体或者撞到墙
+                if(snakeHead.offsetLeft == -20 || snakeHead.offsetTop == -20 || snakeHead.offsetTop == 420 || snakeHead.offsetLeft == 800){
+                    alert("亲爱的，你撞墙了\n\n你的分数:"+score);
+                    clearInterval(timer);
+                    location.reload();
+                }
+                for(var i = 1;i<snakeBody.length;i++){
+                    if(snakeHead.offsetLeft == snakeBody[i].offsetLeft && snakeHead.offsetTop == snakeBody[i].offsetTop){
+                        alert("哈哈，你咬到自己了\n\n你的分数:"+score);
+                        clearInterval(timer);
+                        location.reload();
+                    }
+                }
+                //蛇吃食物
+                var span = document.getElementById("score");
+                if((snakeHead.offsetTop == food.offsetTop) && (snakeHead.offsetLeft == food.offsetLeft)){
+                    score +=1;
+                    var textScore = document.createTextNode("分数:"+score);
+                    span.replaceChild(textScore,span.lastChild);
+                    food.className = "snake-block";
+                    var x = snakeBody.length;
+                    if(direction == "right"){
+                        food.style.left = snakeBody[x-1].offsetLeft - 20 + "px";
+                    }
+                    else if(direction == "left"){
+                        food.style.left = snakeBody[x-1].offsetLeft + 20 + "px";
+                    }
+                    else if(direction == "top"){
+                        food.style.top = snakeBody[x-1].offsetTop + 20 + "px";
+                    }
+                    else if(direction == "down"){
+                        food.style.top = snakeBody[x-1].offsetTop - 20 + "px";
+                    }
+                    snakeBody.push(food);//蛇吃到食物
+                    food = createFood();//重新生成食物
+                }
+                
+            }},false);
+            //随机生成食物
+            function createFood(){
+                var oFood = document.createElement("div");
+                oFood.className = "block food-block";
+                var fleft = ftop = 0;
+                do{
+                    var found = true;
+                    fleft = Math.floor(Math.random()*800);
+                    fleft = fleft - fleft % 20 ;
+                    ftop = Math.floor(Math.random()*420);
+                    ftop = ftop - ftop %20;
+                    for(var i = 0;i < snakeBody.length;i++){
+                        if(fleft === snakeBody[i].offsetLeft && ftop == snakeBody[i].offsetTop){
+                            found = false;
+                            break;
+                        }
+                    }
+                    oFood.style.left = fleft + "px";
+                    oFood.style.top = ftop + "px";
+                    grass.appendChild(oFood);
+                }while(!found)
+                return oFood;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container"id="container">
+        <div id="grass"></div>
+        <div id="btn">
+            <input type="button" id="start" value="开始/继续"/>
+            <input type="button" id="pause" value="暂停"/>
+            <input type="button" id="faster" value="加速"/>
+            <span id="score">分数：0</span>
+        </div>
+    </div>
+</body>
+</html>
