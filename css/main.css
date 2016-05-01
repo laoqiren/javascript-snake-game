@@ -1,0 +1,57 @@
+*{
+    margin: 0;
+    padding:0;
+}
+.container{
+    width: 800px;
+    height: 600px;
+    margin:0 auto;
+}
+#grass{
+    height: 70%;
+    width: 100%;
+    position: relative;
+}
+#btn{
+    height: 30%;
+    width: 100%;
+    background-color: white;
+    text-align: center;
+}
+#start ,#pause,#faster{
+    width: 70px;
+    height: 50px;
+    font-size: 13px;
+    vertical-align: center;
+}
+#score{
+    margin-left: 50px;
+}
+.block{
+    width: 20px;
+    height: 20px;
+    background:url('../images/grass.jpg');
+    float:left;
+}
+.food-block{
+    background:url('../images/apple.jpg');
+    position: absolute;
+    background-position: 50% 50%;
+}
+.snake-block{
+    width: 20px;
+    height: 20px;
+    float:left;
+    background:url('../images/snake.jpg');
+    background-position: 50% 50%;
+    position: absolute;
+}
+.snakeBody{
+    width: 20px;
+    height: 20px;
+    top:60px;23
+    float: left;
+    background:url('../images/snake.jpg');
+    background-position: 50% 50%;
+    position: absolute;
+}
